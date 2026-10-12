@@ -39,3 +39,10 @@ export function parseFilters(sp: SearchParams): Filters {
 export function isValidSlug(slug: string): boolean {
   return slug.length <= 120 && SLUG_PRODUCT.test(slug);
 }
+
+const PRODUCT_ID = /^[a-z0-9]{20,32}$/;
+
+/** Ids de producto (cuid) que llegan del navegador: se validan antes de consultar la base de datos. */
+export function isValidProductId(id: unknown): id is string {
+  return typeof id === "string" && PRODUCT_ID.test(id);
+}

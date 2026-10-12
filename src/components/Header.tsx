@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CartCount from "@/components/CartCount";
 
 const nav = [
   { href: "/", label: "Catálogo" },
@@ -17,6 +18,7 @@ export default function Header() {
           {nav.map((item) => (
             <Link key={item.href} href={item.href} className="text-muted hover:text-ink">
               {item.label}
+              {item.href === "/carrito" && <CartCount />}
             </Link>
           ))}
         </nav>

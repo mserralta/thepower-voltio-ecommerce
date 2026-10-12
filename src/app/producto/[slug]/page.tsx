@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AddToCartButton from "@/components/AddToCartButton";
 import ProductImage from "@/components/ProductImage";
 import { specsToEntries, getProductBySlug } from "@/lib/catalog";
 import { isValidSlug } from "@/lib/filters";
@@ -50,14 +51,7 @@ export default async function ProductPage({ params }: Props) {
             {inStock ? `En stock (${product.stock} uds.)` : "Agotado"}
           </p>
 
-          {/* El carrito (Zustand) llega en la fase 3. */}
-          <button
-            type="button"
-            disabled
-            className="mt-6 w-full rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Añadir al carrito
-          </button>
+          <AddToCartButton productId={product.id} stock={product.stock} />
 
           <p className="mt-8 leading-relaxed">{product.description}</p>
 
