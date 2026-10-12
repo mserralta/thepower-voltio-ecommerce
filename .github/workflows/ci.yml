@@ -1,0 +1,29 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      # Valores ficticios: el CI no toca servicios reales.
+      DATABASE_URL: postgresql://usuario:clave@localhost:5432/tienda
+      DIRECT_URL: postgresql://usuario:clave@localhost:5432/tienda
+      STRIPE_SECRET_KEY: sk_test_ficticia
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_ficticia
+      STRIPE_WEBHOOK_SECRET: whsec_ficticio
+      RESEND_API_KEY: re_ficticia
+      EMAIL_PRUEBAS: pruebas@example.com
+      ADMIN_PASSWORD: clave-ficticia
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build

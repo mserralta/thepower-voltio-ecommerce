@@ -1,0 +1,91 @@
+// La URL de conexión se define en prisma.config.ts (Prisma 7).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  name     String
+  order    Int
+  products Product[]
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  sku         String      @unique
+  /// Identificador legible para la URL: /producto/[slug].
+  slug        String      @unique
+  name        String
+  brand       String
+  description String
+  /// Céntimos de euro, IVA incluido.
+  priceCents  Int
+  stock       Int         @default(0)
+  imageUrl    String?
+  /// Especificaciones técnicas: { "Tensión": "230 V", ... }
+  specs       Json        @default("{}")
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+
+  @@index([categoryId])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id                      String      @id @default(cuid())
+  status                  OrderStatus @default(PENDING)
+  subtotalCents           Int
+  shippingCents           Int
+  totalCents              Int
+  email                   String?
+  customerName            String?
+  shippingAddress         Json?
+  stripeCheckoutSessionId String?     @unique
+  stripePaymentIntentId   String?
+  /// true si el pago llegó cuando ya no quedaba stock: revisar a mano.
+  stockIssue              Boolean     @default(false)
+  createdAt               DateTime    @default(now())
+  paidAt                  DateTime?
+  items                   OrderItem[]
+
+  @@index([status])
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product @relation(fields: [productId], references: [id])
+  /// Copia de sku y nombre para que el pedido no cambie si cambia el producto.
+  skuSnapshot    String
+  nameSnapshot   String
+  unitPriceCents Int
+  quantity       Int
+
+  @@index([orderId])
+}
+
+model StripeEvent {
+  id          String   @id
+  type        String
+  processedAt DateTime @default(now())
+}
