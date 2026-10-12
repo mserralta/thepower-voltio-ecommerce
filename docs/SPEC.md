@@ -2,7 +2,7 @@
 
 > El nombre de la tienda es **Tienda Voltio** y no debe cambiar nunca.
 
-Versión 0.6 · 2026-10-12 · Alineada con `docs/REQUISITOS.md` (requisitos del curso).
+Versión 0.7 · 2026-10-12 · Alineada con `docs/REQUISITOS.md` (requisitos del curso).
 
 **Idioma**: el código y la base de datos (variables, funciones, tipos, modelos, campos, enums, columnas) van **siempre en inglés**. Los textos de la UI, las rutas y parámetros de URL, los comentarios, los commits y la documentación van en español. Esta spec nombra los datos con sus identificadores reales en inglés.
 
@@ -35,6 +35,8 @@ Tienda online de material eléctrico y domótica ("Tienda Voltio"), desplegada e
 | `/checkout/cancelado` | Volvió de Stripe sin pagar. El carrito se conserva. |
 | `/admin` | Lista de pedidos con filtro por estado (`?estado=PAID`…). Protegido con middleware + cookie httpOnly. |
 | `/admin/pedidos/[id]` | Detalle del pedido y botones de transición. |
+| `/admin/productos` | Lista de todos los productos (también ocultos) con precio, stock y visibilidad. |
+| `/admin/productos/[id]` | Edita nombre, marca, descripción, precio (€ con hasta 2 decimales, se guarda en céntimos), stock, categoría y visibilidad. `sku` y `slug` no se editan. |
 | `/admin/login` | Acceso con `ADMIN_PASSWORD`. |
 | `/api/webhooks/stripe` | Webhook de Stripe (Route Handler). |
 
@@ -62,6 +64,8 @@ Stripe Checkout alojado, claves `sk_test_…`.
 Confirmación de pedido con líneas y total, enviada desde el webhook. En pruebas va a `EMAIL_PRUEBAS`.
 
 ## Admin
+
+Barra de navegación común (Pedidos · Productos · Salir) en `src/app/admin/layout.tsx`. Cada Server Action de edición de producto comprueba la sesión, valida el formulario (`src/lib/product-input.ts`) y que la categoría exista. Cambiar un precio no altera pedidos ya hechos (tienen copia del precio).
 
 Estados (`OrderStatus`): `PENDING`, `PAID`, `SHIPPED`, `DELIVERED`, `CANCELLED` (en la UI: pendiente, pagado, enviado, entregado, cancelado). Transiciones permitidas: `PAID→SHIPPED→DELIVERED` y `PENDING→CANCELLED`. Cada Server Action comprueba la sesión de admin y que la transición sea válida, además del middleware.
 
@@ -109,3 +113,4 @@ Cuentas de cliente, cupones, varias monedas, stock en tiempo real, envíos reale
 4. **Checkout con Stripe**: Server Action, sesión, webhook idempotente, email Resend, `/checkout/exito` y `/checkout/cancelado`. ✅
 5. **Admin**: middleware + cookie, pedidos con filtro y transiciones. ✅
 6. **Cierre**: README con arquitectura ✅; despliegue en Vercel y webhook de producción: pasos manuales en `docs/CONFIGURACION-MANUAL.md`. shadcn/ui no se adopta (ver `docs/DECISIONES.md`).
+7. **Admin ampliado**: gestión de productos existentes (editar), junto con pedidos, detalle y estados. ✅

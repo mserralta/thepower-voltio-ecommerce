@@ -22,6 +22,7 @@ npm run dev          # http://localhost:3000
 | 3. Carrito (Zustand + persist, `/carrito`) | ✅ |
 | 4. Checkout Stripe + webhook + email Resend + éxito/cancelado | ✅ código; sin probar contra Stripe/Resend reales (faltan claves) |
 | 5. Admin (middleware + cookie, pedidos, transiciones) | ✅ |
+| 7. Admin ampliado: edición de productos + navegación | ✅ |
 | 6. Cierre: README | ✅ · Vercel, GitHub y webhook de producción: manual |
 
 ## Siguiente paso
@@ -32,7 +33,7 @@ npm run dev          # http://localhost:3000
 
 ## Verificado
 
-`npm run lint`, `npm run typecheck`, `npm test` (17 tests) y `npm run build` OK. Webhook probado con eventos firmados contra la base real (firma, idempotencia, stock). Admin probado con curl. Detalles y lo no probado: final de `docs/DECISIONES.md`.
+`npm run lint`, `npm run typecheck`, `npm test` (21 tests) y `npm run build` OK. Webhook probado con eventos firmados contra la base real (firma, idempotencia, stock). Admin probado con curl. Detalles y lo no probado: final de `docs/DECISIONES.md`.
 
 ## Pendiente / ideas sueltas
 

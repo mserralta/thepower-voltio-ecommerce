@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { logout } from "@/app/admin/actions";
 import { requireAdmin } from "@/lib/admin-session";
 import { formatPrice } from "@/lib/format";
 import { ORDER_STATUSES, STATUS_LABELS, parseOrderStatus } from "@/lib/order-status";
@@ -24,12 +23,7 @@ export default async function AdminPage({ searchParams }: Props) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-semibold tracking-tight">Pedidos</h1>
-        <form action={logout}>
-          <button type="submit" className="text-sm text-muted underline hover:text-ink">Salir</button>
-        </form>
-      </div>
+      <h1 className="text-3xl font-semibold tracking-tight">Pedidos</h1>
 
       <nav aria-label="Filtrar por estado" className="mt-6 flex flex-wrap gap-2 text-sm">
         <Link href="/admin" className={`rounded-full border border-line px-3 py-1 ${!status ? "bg-ink text-paper" : ""}`}>Todos</Link>

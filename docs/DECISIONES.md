@@ -41,6 +41,12 @@ Registro de las decisiones que se tomaron sin consultar al usuario (sesión aut�
 23. Despliegue en Vercel y webhook de producción: pasos manuales en `docs/CONFIGURACION-MANUAL.md` (no se pueden hacer sin cuentas).
 24. `DATABASE_URL_POOLED` del `.env` local no se usa; se documenta cómo unificarlo.
 
+## Fase 7 — Admin ampliado
+
+25. Pedidos (lista, detalle, cambio de estado) ya existían desde la fase 5; la fase 7 añade la **edición de productos existentes** y una barra de navegación común. Si `/admin/pedidos` se ve vacío es porque aún no hay pedidos en la base de datos: aparecen al pagar.
+26. Editable: nombre, marca, descripción, precio, stock, categoría y visibilidad (`active`). **No editable**: `sku`, `slug` (para no romper URLs) ni `specs`/`imageUrl` (fuera de lo pedido). No se crean ni borran productos; para quitar uno de la tienda se desmarca "Visible".
+27. El precio se escribe en euros (`12,95`) y se convierte a céntimos con parseo de texto, sin floats.
+
 ## Limitaciones de verificación
 
 Sin claves de Stripe ni Resend en el `.env` no se pudo probar el pago real ni el email. Verificado: lint, tipos, 17 tests, build; el webhook con eventos firmados (`generateTestHeaderString`) contra la base real: sin firma/firma mala → 400, primera entrega → PAID + stock descontado + dirección guardada, entrega duplicada → 200 sin efecto; el admin con curl (redirección sin cookie, acceso con cookie válida, cookie falsa rechazada). Sin probar: `createCheckout` contra Stripe, el email real y el login desde el navegador. Ver `docs/CONFIGURACION-MANUAL.md` para la prueba completa.

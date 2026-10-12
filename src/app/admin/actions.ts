@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { ADMIN_COOKIE, ADMIN_COOKIE_MAX_AGE, createAdminToken, passwordMatches } from "@/lib/admin-token";
 import { requireAdmin } from "@/lib/admin-session";
 import { canTransition, parseOrderStatus } from "@/lib/order-status";
+import { parseProductForm } from "@/lib/product-input";
 import { prisma } from "@/lib/prisma";
 
 const ORDER_ID = /^[a-z0-9]{20,32}$/;
@@ -48,4 +49,29 @@ export async function changeOrderStatus(formData: FormData): Promise<void> {
   await prisma.order.updateMany({ where: { id: orderId, status: order.status }, data: { status: next } });
   revalidatePath("/admin");
   revalidatePath(`/admin/pedidos/${orderId}`);
+}
+
+export type ProductFormState = { error?: string; saved?: boolean };
+
+/** Edita un producto existente. No cambia `sku` ni `slug` (las URLs no deben romperse). */
+export async function updateProduct(_prev: ProductFormState, formData: FormData): Promise<ProductFormState> {
+  await requireAdmin();
+  const productId = formData.get("productId");
+  if (typeof productId !== "string" || !ORDER_ID.test(productId)) return { error: "Producto no válido." };
+
+  const parsed = parseProductForm(formData);
+  if ("error" in parsed) return { error: parsed.error };
+
+  const [product, category] = await Promise.all([
+    prisma.product.findUnique({ where: { id: productId }, select: { slug: true } }),
+    prisma.category.findUnique({ where: { id: parsed.data.categoryId }, select: { id: true } }),
+  ]);
+  if (!product) return { error: "El producto no existe." };
+  if (!category) return { error: "La categoría no existe." };
+
+  await prisma.product.update({ where: { id: productId }, data: parsed.data });
+  revalidatePath("/");
+  revalidatePath(`/producto/${product.slug}`);
+  revalidatePath("/admin/productos");
+  return { saved: true };
 }
