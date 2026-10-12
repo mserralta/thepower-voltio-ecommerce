@@ -46,3 +46,10 @@ const PRODUCT_ID = /^[a-z0-9]{20,32}$/;
 export function isValidProductId(id: unknown): id is string {
   return typeof id === "string" && PRODUCT_ID.test(id);
 }
+
+const CHECKOUT_SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]{10,200}$/;
+
+/** `session_id` de la URL de éxito: se valida antes de buscar el pedido. */
+export function isValidCheckoutSessionId(id: unknown): id is string {
+  return typeof id === "string" && CHECKOUT_SESSION_ID.test(id);
+}
