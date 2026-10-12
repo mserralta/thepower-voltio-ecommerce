@@ -12,7 +12,7 @@ export default function Header() {
     <header className="border-b border-line">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <Link href="/" className="text-lg font-semibold tracking-tight">
-          Tienda Voltio<span className="text-brand">.</span>
+          Tienda Voltio<span className="text-accent">.</span>
         </Link>
         <nav className="flex gap-6 text-sm">
           {nav.map((item) => (

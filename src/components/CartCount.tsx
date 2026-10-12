@@ -10,7 +10,7 @@ export default function CartCount() {
   return (
     <span
       aria-label={`${count} artículos en el carrito`}
-      className="ml-1.5 rounded-full bg-brand px-1.5 py-0.5 text-xs font-medium text-paper"
+      className="ml-1.5 rounded-full bg-accent px-1.5 py-0.5 text-xs font-semibold text-on-accent"
     >
       {count}
     </span>
