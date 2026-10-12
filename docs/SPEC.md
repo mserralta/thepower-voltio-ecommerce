@@ -2,7 +2,7 @@
 
 > El nombre de la tienda es **Tienda Voltio** y no debe cambiar nunca.
 
-Versión 0.5 · 2026-10-12 · Alineada con `docs/REQUISITOS.md` (requisitos del curso).
+Versión 0.6 · 2026-10-12 · Alineada con `docs/REQUISITOS.md` (requisitos del curso).
 
 **Idioma**: el código y la base de datos (variables, funciones, tipos, modelos, campos, enums, columnas) van **siempre en inglés**. Los textos de la UI, las rutas y parámetros de URL, los comentarios, los commits y la documentación van en español. Esta spec nombra los datos con sus identificadores reales en inglés.
 
@@ -33,7 +33,9 @@ Tienda online de material eléctrico y domótica ("Tienda Voltio"), desplegada e
 | `/carrito` | Líneas con cantidad editable y eliminar, subtotal, envío y total. Botón "Pagar". |
 | `/checkout/exito` | Lee el pedido (por `session_id`) y muestra su estado; vacía el carrito. **No confirma nada**: "Pago confirmado" solo si el webhook ya lo marcó `PAID`, si no "Procesando pago…". |
 | `/checkout/cancelado` | Volvió de Stripe sin pagar. El carrito se conserva. |
-| `/admin` | Lista de pedidos con filtro por estado y detalle. Protegido con middleware + cookie httpOnly. |
+| `/admin` | Lista de pedidos con filtro por estado (`?estado=PAID`…). Protegido con middleware + cookie httpOnly. |
+| `/admin/pedidos/[id]` | Detalle del pedido y botones de transición. |
+| `/admin/login` | Acceso con `ADMIN_PASSWORD`. |
 | `/api/webhooks/stripe` | Webhook de Stripe (Route Handler). |
 
 ## Pago con Stripe (modo test)
@@ -50,7 +52,8 @@ Stripe Checkout alojado, claves `sk_test_…`.
    - Verifica la firma sobre el cuerpo crudo (`await req.text()`); si falla, 400.
    - Idempotente: guarda `event.id` en `StripeEvent`; si ya existe, 200 sin hacer nada.
    - `checkout.session.completed` (pagado): en una transacción pasa a `PAID`, guarda email, nombre, dirección y `paymentIntentId`, y descuenta el stock. Después envía el email de confirmación (una sola vez). Si el email falla, el pedido sigue `PAID`.
-   - `checkout.session.expired`: pasa a `CANCELLED`.
+   - `checkout.session.async_payment_succeeded`: igual que el anterior (pagos asíncronos).
+   - `checkout.session.expired`: pasa a `CANCELLED`. La sesión caduca a los 30 min.
    - Eventos no manejados: 200.
 4. En local: `stripe listen --forward-to localhost:3000/api/webhooks/stripe`. En producción, webhook propio en Stripe con su propio secreto.
 
@@ -65,6 +68,7 @@ Estados (`OrderStatus`): `PENDING`, `PAID`, `SHIPPED`, `DELIVERED`, `CANCELLED` 
 ## Reglas de negocio
 
 - Precios en céntimos (enteros), **IVA 21 % incluido**. Formato con `formatPrice()`.
+- Máximo 20 unidades por línea (y nunca más que el stock) y 50 líneas por carrito.
 - Envío gratis desde 50 €; si no, 4,95 €. Solo España.
 - Todo se vende por unidad; los cables, en rollos de longitud fija (un producto por longitud).
 - No se puede añadir más que el stock. Se vuelve a comprobar al crear la sesión de pago.
@@ -91,7 +95,7 @@ Seed idempotente (por `sku`): 4 categorías y 12 productos; la bombilla Wi-Fi Ta
 
 ## Tests y CI
 
-5 tests de funciones puras con Vitest (`npm test`). GitHub Actions (`.github/workflows/ci.yml`) ejecuta lint, tipos, tests y build en cada push con variables ficticias.
+Tests de funciones puras con Vitest (`npm test`): filtros, importes, validación del carrito, estados, token de admin y email. GitHub Actions (`.github/workflows/ci.yml`) ejecuta lint, tipos, tests y build en cada push con variables ficticias.
 
 ## Fuera de alcance
 
@@ -101,7 +105,7 @@ Cuentas de cliente, cupones, varias monedas, stock en tiempo real, envíos reale
 
 1. **Esqueleto**. ✅
 2. **Base de datos y catálogo** (Prisma + Neon, seed, filtros `q/categoria/min/max`, ficha). ✅
-3. **Carrito** (Zustand + persist, `/carrito`).
-4. **Checkout con Stripe**: Server Action, sesión, webhook idempotente, email Resend, `/checkout/exito` y `/checkout/cancelado`.
-5. **Admin**: middleware + cookie, pedidos con filtro y transiciones.
-6. **Cierre**: shadcn/ui si se adopta, README con arquitectura, despliegue en Vercel y webhook de producción.
+3. **Carrito** (Zustand + persist, `/carrito`). ✅
+4. **Checkout con Stripe**: Server Action, sesión, webhook idempotente, email Resend, `/checkout/exito` y `/checkout/cancelado`. ✅
+5. **Admin**: middleware + cookie, pedidos con filtro y transiciones. ✅
+6. **Cierre**: README con arquitectura ✅; despliegue en Vercel y webhook de producción: pasos manuales en `docs/CONFIGURACION-MANUAL.md`. shadcn/ui no se adopta (ver `docs/DECISIONES.md`).

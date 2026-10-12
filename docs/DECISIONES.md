@@ -31,15 +31,16 @@ Registro de las decisiones que se tomaron sin consultar al usuario (sesión aut�
 16. **Autenticación**: contraseña única `ADMIN_PASSWORD`; la cookie `admin_session` (httpOnly, sameSite lax, secure en producción) contiene un HMAC-SHA256 de una cadena fija con la contraseña como clave, no la contraseña. El middleware (Edge, Web Crypto) y cada Server Action verifican esa cookie. Comparación en tiempo constante.
 17. Rutas: `/admin` (lista + filtro `?estado=`), `/admin/pedidos/[id]` (detalle), `/admin/login`.
 18. Las transiciones se validan en una función pura con tests (`src/lib/order-status.ts`).
-19. Cancelar un pedido `PENDING` desde admin no toca Stripe (la sesión caducará sola).
+19. El login del admin no limita intentos (proyecto de curso, contraseña única); mitigación: contraseña larga. Ampliable con un contador en base de datos o el firewall de Vercel.
+20. Cancelar un pedido `PENDING` desde admin no toca Stripe (la sesión caducará sola).
 
 ## Fase 6 — Cierre
 
-20. README con arquitectura sustituye al de `create-next-app`.
-21. El workflow de CI ya existía; se amplía solo si hace falta.
-22. Despliegue en Vercel y webhook de producción: pasos manuales en `docs/CONFIGURACION-MANUAL.md` (no se pueden hacer sin cuentas).
-23. `DATABASE_URL_POOLED` del `.env` local no se usa; se documenta cómo unificarlo.
+21. README con arquitectura sustituye al de `create-next-app`.
+22. El workflow de CI ya existía; se amplía solo si hace falta.
+23. Despliegue en Vercel y webhook de producción: pasos manuales en `docs/CONFIGURACION-MANUAL.md` (no se pueden hacer sin cuentas).
+24. `DATABASE_URL_POOLED` del `.env` local no se usa; se documenta cómo unificarlo.
 
 ## Limitaciones de verificación
 
-Sin claves de Stripe ni Resend en el `.env` no se pudo probar el pago real ni el email. Verificado: lint, tipos, tests, build y humo en local del resto. El webhook se probó con eventos firmados construidos con `stripe.webhooks.generateTestHeaderString` cuando fue posible.
+Sin claves de Stripe ni Resend en el `.env` no se pudo probar el pago real ni el email. Verificado: lint, tipos, 17 tests, build; el webhook con eventos firmados (`generateTestHeaderString`) contra la base real: sin firma/firma mala → 400, primera entrega → PAID + stock descontado + dirección guardada, entrega duplicada → 200 sin efecto; el admin con curl (redirección sin cookie, acceso con cookie válida, cookie falsa rechazada). Sin probar: `createCheckout` contra Stripe, el email real y el login desde el navegador. Ver `docs/CONFIGURACION-MANUAL.md` para la prueba completa.
