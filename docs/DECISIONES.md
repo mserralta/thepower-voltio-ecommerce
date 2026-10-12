@@ -47,6 +47,12 @@ Registro de las decisiones que se tomaron sin consultar al usuario (sesión aut�
 26. Editable: nombre, marca, descripción, precio, stock, categoría y visibilidad (`active`). **No editable**: `sku`, `slug` (para no romper URLs) ni `specs`/`imageUrl` (fuera de lo pedido). No se crean ni borran productos; para quitar uno de la tienda se desmarca "Visible".
 27. El precio se escribe en euros (`12,95`) y se convierte a céntimos con parseo de texto, sin floats.
 
+## Pictogramas de producto
+
+28. Pictogramas SVG **dibujados a mano para el proyecto** (no descargados de internet: evita licencias y dependencias). Viven en `src/components/ProductImage.tsx` (12 iconos: rollo de cable, cable de red, bombilla, foco GU10, bombilla Wi-Fi, relé, actuador de persiana, contactor, magnetotérmico, diferencial, base de enchufe y un rayo genérico).
+29. Se asignan por SKU exacto y, para productos nuevos, por prefijo de familia (`CAB`, `ILU`, `AUT`, `PRO`, `MEC`) en `src/lib/pictograms.ts`; sin coincidencia sale el rayo. Si se añade un producto con un tipo nuevo, basta añadir su icono y su SKU.
+30. Siguen siendo un marcador hasta que haya fotos reales (`Product.imageUrl`).
+
 ## Limitaciones de verificación
 
 Sin claves de Stripe ni Resend en el `.env` no se pudo probar el pago real ni el email. Verificado: lint, tipos, 17 tests, build; el webhook con eventos firmados (`generateTestHeaderString`) contra la base real: sin firma/firma mala → 400, primera entrega → PAID + stock descontado + dirección guardada, entrega duplicada → 200 sin efecto; el admin con curl (redirección sin cookie, acceso con cookie válida, cookie falsa rechazada). Sin probar: `createCheckout` contra Stripe, el email real y el login desde el navegador. Ver `docs/CONFIGURACION-MANUAL.md` para la prueba completa.

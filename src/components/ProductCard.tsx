@@ -9,7 +9,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <Link href={`/producto/${product.slug}`} className="group block">
       <div className="relative">
-        <ProductImage name={product.name} className="aspect-square transition group-hover:opacity-90" />
+        <ProductImage name={product.name} sku={product.sku} className="aspect-square transition group-hover:opacity-90" />
         {soldOut && (
           <span className="absolute left-3 top-3 rounded bg-ink px-2 py-1 text-xs text-paper">
             Agotado

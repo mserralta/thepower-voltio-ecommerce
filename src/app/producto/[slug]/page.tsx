@@ -36,7 +36,7 @@ export default async function ProductPage({ params }: Props) {
       </nav>
 
       <div className="mt-6 grid gap-10 md:grid-cols-2">
-        <ProductImage name={product.name} className="aspect-square" />
+        <ProductImage name={product.name} sku={product.sku} className="aspect-square" />
 
         <div>
           <p className="text-sm uppercase tracking-wide text-muted">{product.brand}</p>
