@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { changeOrderStatus } from "@/app/admin/actions";
+import ResendEmailButton from "@/components/ResendEmailButton";
 import { requireAdmin } from "@/lib/admin-session";
 import { formatPrice } from "@/lib/format";
-import { STATUS_LABELS, allowedTransitions } from "@/lib/order-status";
+import { STATUS_LABELS, allowedTransitions, isConfirmed } from "@/lib/order-status";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "Detalle del pedido — Tienda Voltio" };
@@ -47,6 +48,8 @@ export default async function AdminOrderPage({ params }: Props) {
           ))}
         </form>
       )}
+
+      {isConfirmed(order.status) && <ResendEmailButton orderId={order.id} />}
 
       <section className="mt-8 grid gap-6 text-sm sm:grid-cols-2">
         <div>

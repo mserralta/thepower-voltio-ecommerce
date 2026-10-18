@@ -34,7 +34,7 @@ Tienda online de material eléctrico y domótica ("Tienda Voltio"), desplegada e
 | `/checkout/exito` | Lee el pedido (por `session_id`) y muestra su estado; vacía el carrito. **No confirma nada**: "Pago confirmado" solo si el webhook ya lo marcó `PAID`, si no "Procesando pago…". |
 | `/checkout/cancelado` | Volvió de Stripe sin pagar. El carrito se conserva. |
 | `/admin` | Lista de pedidos con filtro por estado (`?estado=PAID`…). Protegido con middleware + cookie httpOnly. |
-| `/admin/pedidos/[id]` | Detalle del pedido y botones de transición. |
+| `/admin/pedidos/[id]` | Detalle del pedido, botones de transición y, si está confirmado (`PAID`, `SHIPPED` o `DELIVERED`), botón «Reenviar email de confirmación». |
 | `/admin/productos` | Lista de todos los productos (también ocultos) con precio, stock y visibilidad. |
 | `/admin/productos/[id]` | Edita nombre, marca, descripción, precio (€ con hasta 2 decimales, se guarda en céntimos), stock, categoría y visibilidad. `sku` y `slug` no se editan. |
 | `/admin/login` | Acceso con `ADMIN_PASSWORD`. |

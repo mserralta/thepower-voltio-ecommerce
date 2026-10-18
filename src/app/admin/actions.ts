@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { ADMIN_COOKIE, ADMIN_COOKIE_MAX_AGE, createAdminToken, passwordMatches } from "@/lib/admin-token";
 import { requireAdmin } from "@/lib/admin-session";
-import { canTransition, parseOrderStatus } from "@/lib/order-status";
+import { sendOrderConfirmation } from "@/lib/email";
+import { canTransition, isConfirmed, parseOrderStatus } from "@/lib/order-status";
 import { parseProductForm } from "@/lib/product-input";
 import { prisma } from "@/lib/prisma";
 
@@ -74,4 +75,23 @@ export async function updateProduct(_prev: ProductFormState, formData: FormData)
   revalidatePath(`/producto/${product.slug}`);
   revalidatePath("/admin/productos");
   return { saved: true };
+}
+
+export type ResendState = { ok?: boolean; message?: string };
+
+/** Reenvía el email de confirmación de un pedido ya confirmado (pagado, enviado o entregado). */
+export async function resendConfirmationEmail(_prev: ResendState, formData: FormData): Promise<ResendState> {
+  await requireAdmin();
+  const orderId = formData.get("orderId");
+  if (typeof orderId !== "string" || !ORDER_ID.test(orderId)) return { message: "Pedido no válido." };
+
+  const order = await prisma.order.findUnique({ where: { id: orderId }, include: { items: true } });
+  if (!order) return { message: "El pedido no existe." };
+  if (!isConfirmed(order.status)) return { message: "Solo se puede reenviar en pedidos confirmados." };
+  if (!order.email && !process.env.EMAIL_PRUEBAS) return { message: "El pedido no tiene email de cliente." };
+
+  const sent = await sendOrderConfirmation(order);
+  return sent
+    ? { ok: true, message: "Email reenviado." }
+    : { message: "No se pudo enviar el email (revisa RESEND_API_KEY y los logs)." };
 }

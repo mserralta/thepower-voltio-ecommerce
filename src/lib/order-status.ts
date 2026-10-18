@@ -31,3 +31,8 @@ export function canTransition(from: OrderStatus, to: OrderStatus): boolean {
 export function parseOrderStatus(value: unknown): OrderStatus | undefined {
   return ORDER_STATUSES.find((s) => s === value);
 }
+
+/** Pedidos con el pago confirmado: se les puede reenviar el email. */
+export function isConfirmed(status: OrderStatus): boolean {
+  return status === "PAID" || status === "SHIPPED" || status === "DELIVERED";
+}
