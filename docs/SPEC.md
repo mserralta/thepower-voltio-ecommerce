@@ -28,8 +28,8 @@ Tienda online de material eléctrico y domótica ("Tienda Voltio"), desplegada e
 
 | Ruta | Qué hace |
 |---|---|
-| `/` | Catálogo. Búsqueda por nombre (`?q=`), categoría (`?categoria=`) y rango de precio en euros enteros (`?min=&max=`). Se resuelve en el servidor con Prisma; los parámetros inválidos se ignoran. Cada tarjeta tiene compra rápida: selector de cantidad (1 hasta el stock, máx. 20) y botón "Añadir"; no se muestra si está agotado. |
-| `/producto/[slug]` | Detalle: imagen, nombre, marca, SKU, precio con IVA, stock, especificaciones y "Añadir al carrito" con selector de cantidad. El enlace usa el `slug` del producto, nunca el id. 404 si el slug es inválido o no existe. Título por producto. |
+| `/` | Catálogo. Búsqueda por nombre (`?q=`), categoría (`?categoria=`) y rango de precio en euros enteros (`?min=&max=`). Se resuelve en el servidor con Prisma; los parámetros inválidos se ignoran. Cada tarjeta tiene compra rápida: campo de cantidad editable con botones − / + (de 1 al máximo permitido; al salir del campo se ajusta al rango) y botón "Añadir". Con cursor aparece al pasar el ratón por la tarjeta o al enfocarla con teclado; en táctiles se ve siempre. No se muestra si el producto está agotado. Los avisos de stock se describen en Carrito. |
+| `/producto/[slug]` | Detalle: imagen, nombre, marca, SKU, precio con IVA, stock, especificaciones y "Añadir al carrito" con selector de cantidad y los mismos avisos de stock que el catálogo. El enlace usa el `slug` del producto, nunca el id. 404 si el slug es inválido o no existe. Título por producto. |
 | `/carrito` | Líneas con cantidad editable y eliminar, subtotal, envío y total. Botón "Pagar". |
 | `/checkout/exito` | Lee el pedido (por `session_id`) y muestra su estado; vacía el carrito. **No confirma nada**: "Pago confirmado" solo si el webhook ya lo marcó `PAID`, si no "Procesando pago…". |
 | `/checkout/cancelado` | Volvió de Stripe sin pagar. El carrito se conserva. |

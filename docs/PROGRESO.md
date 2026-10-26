@@ -1,6 +1,6 @@
 # Progreso — dónde lo dejamos
 
-Última sesión: 2026-10-12 (autónoma). **Todas las fases de código están hechas.** Queda la configuración manual en cuentas externas: ver `docs/CONFIGURACION-MANUAL.md`.
+Última sesión: 2026-10-26. **Todas las fases de código están hechas.** Queda la configuración manual en cuentas externas: ver `docs/CONFIGURACION-MANUAL.md`.
 
 Lee primero `CLAUDE.md` (stack y convenciones), `docs/SPEC.md` (qué se construye), `docs/REQUISITOS.md` (curso) y `docs/DECISIONES.md` (decisiones tomadas sin consultar).
 
@@ -24,6 +24,7 @@ npm run dev          # http://localhost:3000
 | 5. Admin (middleware + cookie, pedidos, transiciones) | ✅ |
 | 7. Admin ampliado: edición de productos + navegación | ✅ |
 | 6. Cierre: README | ✅ · Vercel, GitHub y webhook de producción: manual |
+| 8. Compra rápida en el catálogo (stepper − / input / +, visible al pasar el cursor) + avisos de stock/tope de 20 en catálogo y ficha | ✅ (commit `38e945c`) |
 
 ## Siguiente paso
 
@@ -40,6 +41,6 @@ npm run dev          # http://localhost:3000
 - Fotos de producto (`imageUrl`): decidir alojamiento y `images.remotePatterns`.
 - `createdAt` es igual en todo el seed.
 - `npm audit` avisa de vulnerabilidades sin revisar (no usar `--force` a ciegas).
-- Repositorio git solo local (un commit por fase); falta el remoto en GitHub.
+- Tope de 20 unidades por línea (`MAX_QUANTITY`): se mantiene y se avisa al cliente; si se quiere que el tope sea solo el stock, hay que quitarlo de `pricing.ts`, `cart-store.ts`, `cart-input.ts`, el test y la SPEC.
 - Un pedido `PENDING` abandonado se cancela solo a los 30 min por el evento `checkout.session.expired` (requiere el webhook configurado).
 - El login del admin no limita intentos.
