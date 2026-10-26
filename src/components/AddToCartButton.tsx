@@ -1,16 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useCart } from "@/lib/cart-store";
-import { maxQuantityFor } from "@/lib/pricing";
+import { useAddToCart } from "@/lib/use-add-to-cart";
 
 type Props = { productId: string; stock: number };
 
 export default function AddToCartButton({ productId, stock }: Props) {
-  const max = maxQuantityFor(stock);
+  const { max, soldOutInCart, message, submit, clearFeedback } = useAddToCart(productId, stock);
   const [quantity, setQuantity] = useState(1);
-  const [added, setAdded] = useState(false);
-  const add = useCart((s) => s.add);
 
   if (max === 0) {
     return (
@@ -33,7 +30,10 @@ export default function AddToCartButton({ productId, stock }: Props) {
         <select
           id="quantity"
           value={quantity}
-          onChange={(e) => setQuantity(Number(e.target.value))}
+          onChange={(e) => {
+            setQuantity(Number(e.target.value));
+            clearFeedback();
+          }}
           className="rounded border border-line bg-paper px-3 py-2 text-sm"
         >
           {Array.from({ length: max }, (_, i) => i + 1).map((n) => (
@@ -46,15 +46,15 @@ export default function AddToCartButton({ productId, stock }: Props) {
       <button
         type="button"
         onClick={() => {
-          add(productId, quantity, max);
-          setAdded(true);
+          submit(quantity);
         }}
-        className="mt-4 w-full rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper hover:opacity-90"
+        disabled={soldOutInCart}
+        className="mt-4 w-full rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
       >
         Añadir al carrito
       </button>
-      <p role="status" className="mt-2 min-h-5 text-sm text-ok">
-        {added ? "Añadido al carrito." : ""}
+      <p role="status" className={`mt-2 min-h-5 text-sm ${message?.tone === "warn" ? "text-warn" : "text-ok"}`}>
+        {message?.text ?? ""}
       </p>
     </div>
   );

@@ -6,8 +6,8 @@ export type CartItem = { productId: string; quantity: number };
 
 type CartState = {
   items: CartItem[];
-  /** Suma `quantity` a la línea sin pasar de `max` (stock). */
-  add: (productId: string, quantity: number, max: number) => void;
+  /** Suma `quantity` a la línea sin pasar de `max` (stock). Devuelve las unidades realmente añadidas. */
+  add: (productId: string, quantity: number, max: number) => number;
   setQuantity: (productId: string, quantity: number) => void;
   remove: (productId: string) => void;
   clear: () => void;
@@ -16,9 +16,10 @@ type CartState = {
 // Solo se guardan las líneas; el total y el nº de artículos se calculan (selectores de abajo).
 export const useCart = create<CartState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       items: [],
-      add: (productId, quantity, max) =>
+      add: (productId, quantity, max) => {
+        const before = get().items.find((i) => i.productId === productId)?.quantity ?? 0;
         set((state) => {
           const cap = Math.min(max, MAX_QUANTITY);
           const existing = state.items.find((i) => i.productId === productId);
@@ -31,7 +32,9 @@ export const useCart = create<CartState>()(
           }
           if (state.items.length >= MAX_LINES || cap < 1) return state;
           return { items: [...state.items, { productId, quantity: Math.min(quantity, cap) }] };
-        }),
+        });
+        return (get().items.find((i) => i.productId === productId)?.quantity ?? 0) - before;
+      },
       setQuantity: (productId, quantity) =>
         set((state) => ({
           items:

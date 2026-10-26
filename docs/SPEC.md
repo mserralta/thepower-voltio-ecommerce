@@ -28,7 +28,7 @@ Tienda online de material eléctrico y domótica ("Tienda Voltio"), desplegada e
 
 | Ruta | Qué hace |
 |---|---|
-| `/` | Catálogo. Búsqueda por nombre (`?q=`), categoría (`?categoria=`) y rango de precio en euros enteros (`?min=&max=`). Se resuelve en el servidor con Prisma; los parámetros inválidos se ignoran. |
+| `/` | Catálogo. Búsqueda por nombre (`?q=`), categoría (`?categoria=`) y rango de precio en euros enteros (`?min=&max=`). Se resuelve en el servidor con Prisma; los parámetros inválidos se ignoran. Cada tarjeta tiene compra rápida: selector de cantidad (1 hasta el stock, máx. 20) y botón "Añadir"; no se muestra si está agotado. |
 | `/producto/[slug]` | Detalle: imagen, nombre, marca, SKU, precio con IVA, stock, especificaciones y "Añadir al carrito" con selector de cantidad. El enlace usa el `slug` del producto, nunca el id. 404 si el slug es inválido o no existe. Título por producto. |
 | `/carrito` | Líneas con cantidad editable y eliminar, subtotal, envío y total. Botón "Pagar". |
 | `/checkout/exito` | Lee el pedido (por `session_id`) y muestra su estado; vacía el carrito. **No confirma nada**: "Pago confirmado" solo si el webhook ya lo marcó `PAID`, si no "Procesando pago…". |
@@ -72,7 +72,7 @@ Estados (`OrderStatus`): `PENDING`, `PAID`, `SHIPPED`, `DELIVERED`, `CANCELLED` 
 ## Reglas de negocio
 
 - Precios en céntimos (enteros), **IVA 21 % incluido**. Formato con `formatPrice()`.
-- Máximo 20 unidades por línea (y nunca más que el stock) y 50 líneas por carrito.
+- Máximo 20 unidades por línea (y nunca más que el stock) y 50 líneas por carrito. Al añadir desde el catálogo o la ficha se cuenta lo que ya hay en el carrito: si no cabe todo se avisa ("Solo se han añadido X…"), y si ya está todo el stock en el carrito el botón queda desactivado con el aviso "No hay más stock"; si lo que se alcanza es el tope de 20 por línea (hay más stock), el aviso dice "Máximo 20 unidades de cada producto por pedido".
 - Envío gratis desde 50 €; si no, 4,95 €. Solo España.
 - Todo se vende por unidad; los cables, en rollos de longitud fija (un producto por longitud).
 - No se puede añadir más que el stock. Se vuelve a comprobar al crear la sesión de pago.
